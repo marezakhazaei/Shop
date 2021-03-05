@@ -1,0 +1,69 @@
+﻿@model Shop.Common.Models.ProductListDto
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div>
+    <h3>Products List</h3>
+    @Html.Hidden("clientId")
+
+    <div class="row">
+        @foreach (var product in Model.Products)
+        {
+            <div class="column">
+                <div class="content">
+                    <img src="~/images/@product.Photo" class="productImage">
+                    <h5>@product.Title</h5>
+                    <p class="price">£@product.Price</p>
+                    <p>@product.ProductDesc</p>
+                    <input type="button" name="add" value="Add To Basket" onclick="add(@product.Id)" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+
+        function setBasketCount() {
+            clientId = $('#clientId').val();
+            $.ajax({
+                type: "GET",
+                url: "https://localhost:44332/cart/count/" + clientId,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $('#basketTotalCount').text(data.totalCount);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+
+        function add(id) {
+            var obj = {
+                ProductId: id,
+                clientId: $('#clientId').val(),
+                count: 1
+            };
+            $.ajax({
+                type: "POST",
+                url: "https://localhost:44332/cart/",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(obj),
+                success: function (data) {
+                    $('#basketTotalCount').text(data.totalCount);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+        $(function () {
+            setBasketCount();
+        });
+    </script>
+}

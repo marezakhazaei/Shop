@@ -1,0 +1,107 @@
+﻿@model Shop.Common.Models.BasketDto
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<h1>Basket</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayName("ProductTitle")
+            </th>
+            <th>
+                @Html.DisplayName("ProductPrice")
+            </th>
+            <th>
+                @Html.DisplayName("Photo")
+            </th>
+            <th>
+                @Html.DisplayName("ProductCount")
+            </th>
+            <th>
+                @Html.DisplayName("Price")
+            </th>
+            <th>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.BasketItems)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductPrice)
+                </td>
+                <td>
+                    <img src="~/images/@item.ProductPhoto" class="productBasketImage">
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductCount)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @*<a asp-action="Delete" asp-controller="Cart" asp-route-id="@item.Id">Delete</a>*@
+                    <a onclick="deleteItem(@item.Id)">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <hr />
+    @Html.DisplayNameFor(model => model.TotalCount)
+    @Html.DisplayFor(model => model.TotalCount)
+    <br />
+    @Html.DisplayNameFor(model => model.ProductPrices)
+    @Html.DisplayFor(model => model.ProductPrices)
+    <br />
+    <div>
+        @Html.DisplayNameFor(model => model.TotalDiscount)
+        @Html.TextBoxFor(model => model.TotalDiscount, new { @readonly = "readonly" })
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <label>Is Staff: </label>
+        <input type="checkbox" id="isStaff">
+        <input type="button" value="Apply Discount" onclick="applyDiscount()">
+    </div>
+    <hr />
+    @Html.DisplayNameFor(model => model.TotalPrice)
+    @Html.TextBoxFor(model => model.TotalPrice, new { @readonly = "readonly" })
+
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        function deleteItem(id) {
+            var newUrl = document.location.href + '/delete/' + id;
+            window.open(newUrl, '_self');
+        }
+
+        function applyDiscount() {
+            var obj = {
+                isStaff: $('#isStaff').is(":checked"),
+                clientId: $('#clientId').val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "https://localhost:44332/cart/discount/",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: JSON.stringify(obj),
+                success: function (data) {
+                    $('#TotalDiscount').val(data.totalDiscount);
+                    $('#TotalPrice').val(data.totalPrice);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+        }
+    </script>
+}
